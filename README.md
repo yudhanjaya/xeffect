@@ -26,4 +26,4 @@ Refresh the page to see a new inspirational quote.
 
 Compatibility: Works on any modern web browser (Chrome, Firefox, Safari, Edge, etc.) without needing any additional setup or installation.
 
-I'm trying to keep it as deliberately simple as possible. There's no need for a web server, no dependencies to install, and no complex build process.
+I'm trying to keep it as deliberately simple as possible. There's no need for a web server, no dependencies to install, and no complex build process. I'm basically building these things also as a way of learning JavaScript a bit better, so it makes sense to build as simple as possible. 
