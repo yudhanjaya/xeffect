@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-effect Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            font-family: 'Lora', serif;
+            text-align: center;
+            color: #222;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2em;
+            margin-bottom: 2em;
+        }
+        .quote {
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 1em;
+            color: #555;
+        }
+        .checklist, .settings {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .checklist label {
+            display: flex;
+            align-items: center;
+            background-color: rgba(240, 240, 240, 0.8);
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .checklist label:hover {
+            background-color: rgba(224, 224, 224, 0.8);
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .month {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1em;
+            transition: all 0.3s ease;
+        }
+        .month:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .month h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            color: #444;
+        }
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .day {
+            text-align: center;
+            padding: 0.5em;
+            position: relative;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            border: 1px solid #ddd;
+        }
+        .day:hover {
+            background-color: rgba(240, 240, 240, 0.8);
+        }
+        .completed::after {
+            content: 'X';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        .completed {
+            background-color: rgba(255, 200, 200, 0.3);
+        }
+        .current-month {
+            background-color: rgba(230, 243, 255, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: beige;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d5d5b5;
+        }
+        button:hover {
+            background-color: #e6e6cc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(2px);
+        }
+        #settingsModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #checklistSettings > div {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>X-effect Calendar</h1>
+        <h2 id="currentDate"></h2>
+        <p id="inspirationalQuote" class="quote"></p>
+        <div class="settings">
+            <button id="settingsBtn">Settings</button>
+        </div>
+        <div id="checklist" class="checklist"></div>
+    </div>
+    <div class="container">
+        <div id="calendar" class="calendar-container"></div>
+    </div>
+
+    <div id="settingsModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Settings</h2>
+            <div id="checklistSettings"></div>
+            <button id="addChecklistItem">Add Checklist Item</button>
+            <button id="saveSettings">Save Settings</button>
+        </div>
+    </div>
+
+    <script>
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        const currentDay = today.getDate();
+        let completedDays = new Set();
+        let checklistItems = [];
+
+        const quotes = [
+            "It is not the strongest of the species that survive, nor the most intelligent, but the one most responsive to change. - Heraclitus",
+            "There is nothing permanent except change. - Heraclitus",
+            "The secret of change is to focus all of your energy not on fighting the old, but on building the new. - Socrates",
+            "He who is not contented with what he has, would not be contented with what he would like to have. - Socrates",
+            "We are what we repeatedly do. Excellence, then, is not an act, but a habit. - Aristotle",
+            "Nothing in the world can take the place of persistence. - Calvin Coolidge",
+            "I have not failed. I've just found 10,000 ways that won't work. - Thomas A. Edison",
+            "It's not that I'm so smart, it's just that I stay with problems longer. - Albert Einstein",
+            "Permanence, perseverance and persistence in spite of all obstacles, discouragements, and impossibilities: It is this, that in all things distinguishes the strong soul from the weak. - Thomas Carlyle",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts. - Winston Churchill",
+            "It always seems impossible until it's done. - Nelson Mandela",
+            "Fall seven times, stand up eight. - Japanese Proverb",
+            "The difference between a successful person and others is not a lack of strength, not a lack of knowledge, but rather a lack of will. - Vince Lombardi",
+            "Patience and perseverance have a magical effect before which difficulties disappear and obstacles vanish. - John Quincy Adams",
+            "Perseverance is not a long race; it is many short races one after the other. - Walter Elliot",
+            "It does not matter how slowly you go as long as you do not stop. - Confucius",
+            "I think and think for months and years. Ninety-nine times, the conclusion is false. The hundredth time I am right. - Albert Einstein",
+            "Many of life's failures are people who did not realize how close they were to success when they gave up. - Thomas A. Edison",
+            "Energy and persistence conquer all things. - Benjamin Franklin",
+            "The most difficult thing is the decision to act, the rest is merely tenacity. - Amelia Earhart",
+            "Persistence and resilience only come from having been given the chance to work through difficult problems. - Gever Tulley",
+            "The difference between perseverance and obstinacy is that one comes from a strong will, and the other from a strong won't. - Henry Ward Beecher",
+            "A river cuts through rock not because of its power, but because of its persistence. - Jim Watkins",
+            "Persistence is to the character of man as carbon is to steel. - Napoleon Hill",
+            "Persistence is the twin sister of excellence. One is a matter of quality; the other, a matter of time. - Marabel Morgan",
+            "Success seems to be largely a matter of hanging on after others have let go. - William Feather",
+            "The secret of success is constancy to purpose. - Benjamin Disraeli",
+            "Great works are performed not by strength but by perseverance. - Samuel Johnson",
+            "A little more persistence, a little more effort, and what seemed hopeless failure may turn to glorious success. - Elbert Hubbard",
+            "Continuous effort - not strength or intelligence - is the key to unlocking our potential. - Winston Churchill",
+            "Courage and perseverance have a magical talisman, before which difficulties disappear and obstacles vanish into air. - John Quincy Adams",
+            "Success is the sum of small efforts, repeated day in and day out. - Robert Collier",
+            "The man who moves a mountain begins by carrying away small stones. - Confucius",
+            "Perseverance is failing 19 times and succeeding the 20th. - Julie Andrews",
+            "Persistence is what makes the impossible possible, the possible likely, and the likely definite. - Robert Half",
+            "It's not whether you get knocked down, it's whether you get up. - Vince Lombardi",
+            "I am not judged by the number of times I fail, but by the number of times I succeed. And the number of times I succeed is in direct proportion to the number of times I can fail and keep on trying. - Tom Hopkins",
+            "Perseverance is the hard work you do after you get tired of doing the hard work you already did. - Newt Gingrich",
+            "Patience, persistence and perspiration make an unbeatable combination for success. - Napoleon Hill",
+            "The only guarantee for failure is to stop trying. - John C. Maxwell",
+            "Talent is insignificant. I know a lot of talented ruins. Beyond talent lie all the usual words: discipline, love, luck, but most of all, endurance. - James Baldwin"
+        ];
+
+        function updateCurrentDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+        }
+
+        function updateInspirationalQuote() {
+            const quoteElement = document.getElementById('inspirationalQuote');
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteElement.textContent = randomQuote;
+        }
+
+        function createCalendar() {
+            const calendarContainer = document.getElementById('calendar');
+            calendarContainer.innerHTML = '';
+            for (let month = 0; month < 12; month++) {
+                const monthElement = document.createElement('div');
+                monthElement.className = `month ${month === currentMonth ? 'current-month' : ''}`;
+                
+                const monthName = new Date(currentYear, month).toLocaleString('default', { month: 'long' });
+                monthElement.innerHTML = `<h2>${monthName}</h2>`;
+
+                const daysContainer = document.createElement('div');
+                daysContainer.className = 'days';
+
+                const firstDay = new Date(currentYear, month, 1).getDay();
+                const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDay; i++) {
+                    daysContainer.appendChild(document.createElement('div'));
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day';
+                    dayElement.textContent = day;
+                    if (month === currentMonth && day === currentDay) {
+                        dayElement.style.fontWeight = 'bold';
+                    }
+                    if (completedDays.has(`${currentYear}-${month}-${day}`)) {
+                        dayElement.classList.add('completed');
+                    }
+                    daysContainer.appendChild(dayElement);
+                }
+
+                monthElement.appendChild(daysContainer);
+                calendarContainer.appendChild(monthElement);
+            }
+        }
+
+        function updateCompletedDays() {
+            const isCompleted = checklistItems.every(item => document.getElementById(item.id).checked);
+            const currentMonthDays = document.querySelector('.current-month .days').children;
+            const dateKey = `${currentYear}-${currentMonth}-${currentDay}`;
+            
+            if (isCompleted) {
+                completedDays.add(dateKey);
+            } else {
+                completedDays.delete(dateKey);
+            }
+
+            for (let i = 0; i < currentMonthDays.length; i++) {
+                if (currentMonthDays[i].textContent == currentDay) {
+                    currentMonthDays[i].classList.toggle('completed', isCompleted);
+                    break;
+                }
+            }
+
+            localStorage.setItem('completedDays', JSON.stringify(Array.from(completedDays)));
+        }
+
+        function loadCompletedDays() {
+            const storedDays = localStorage.getItem('completedDays');
+            if (storedDays) {
+                completedDays = new Set(JSON.parse(storedDays));
+            }
+        }
+
+        function loadChecklistItems() {
+            const storedItems = localStorage.getItem('checklistItems');
+            if (storedItems) {
+                checklistItems = JSON.parse(storedItems);
+            } else {
+                checklistItems = [
+                    { id: 'writing', label: 'Writing' },
+                    { id: 'exercise', label: 'Exercise' },
+                    { id: 'leisure', label: 'Leisure' }
+                ];
+            }
+        }
+
+        function saveChecklistItems() {
+            localStorage.setItem('checklistItems', JSON.stringify(checklistItems));
+        }
+
+        function renderChecklist() {
+            const checklistContainer = document.getElementById('checklist');
+            checklistContainer.innerHTML = '';
+            checklistItems.forEach(item => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = item.id;
+                checkbox.checked = localStorage.getItem(item.id) === 'true';
+                checkbox.addEventListener('change', () => {
+                    updateCompletedDays();
+                    localStorage.setItem(item.id, checkbox.checked);
+                });
+                label.appendChild(checkbox);
+                label.append(` ${item.label}`);
+                checklistContainer.appendChild(label);
+            });
+        }
+
+        function renderChecklistSettings() {
+            const settingsContainer = document.getElementById('checklistSettings');
+            settingsContainer.innerHTML = '';
+            checklistItems.forEach((item, index) => {
+                const itemContainer = document.createElement('div');
+                itemContainer.innerHTML = `
+                    <input type="text" value="${item.label}" placeholder="Label" data-index="${index}" class="item-label">
+                    <button data-index="${index}" class="remove-item">Remove</button>
+                `;
+                settingsContainer.appendChild(itemContainer);
+            });
+        }
+
+        // Settings modal functionality
+        const modal = document.getElementById('settingsModal');
+        const btn = document.getElementById('settingsBtn');
+        const span = document.getElementsByClassName('close')[0];
+        const addItemBtn = document.getElementById('addChecklistItem');
+        const saveSettingsBtn = document.getElementById('saveSettings');
+
+        btn.onclick = () => {
+            modal.style.display = 'block';
+            renderChecklistSettings();
+        }
+
+        span.onclick = () => {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        addItemBtn.onclick = () => {
+            if (checklistItems.length < 5) {
+                checklistItems.push({ id: `item${checklistItems.length}`, label: '' });
+                renderChecklistSettings();
+            } else {
+                alert('Maximum of 5 checklist items allowed.');
+            }
+        }
+
+        saveSettingsBtn.onclick = () => {
+            const labels = document.getElementsByClassName('item-label');
+            checklistItems = [];
+            for (let i = 0; i < labels.length; i++) {
+                checklistItems.push({
+                    id: `item${i}`,
+                    label: labels[i].value
+                });
+            }
+            saveChecklistItems();
+            renderChecklist();
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('checklistSettings').addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-item')) {
+                const index = parseInt(e.target.dataset.index);
+                checklistItems.splice(index, 1);
+                renderChecklistSettings();
+            }
+        });
+
+        function init() {
+            loadCompletedDays();
+            loadChecklistItems();
+            updateCurrentDate();
+            updateInspirationalQuote();
+            createCalendar();
+            renderChecklist();
+            setInterval(updateCurrentDate, 1000);
+            setInterval(updateInspirationalQuote, 60000); // Update quote every minute
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
