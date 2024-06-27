@@ -1,7 +1,10 @@
 # X-effect Calendar
 
-Simple X-Effect calendar app that sits in the browser. Take off checklist items and a big red X will appear on that day; you've completed your stuff. 
+Simple X-Effect calendar app that sits in the browser. Tick off checklist items and a big red X will appear on that day; you've completed your stuff. 
+
 Shows all months of the current year, with the current month highlighted. You can have a daily checklist of up to five customizable items that you can check off each day. When you check off everything, that day is completed and marked with a red X on the calendar. The idea is that over time, this row of red Xs becomes motivation to keep on going so that you don't break the streak. The calendar uses your browser's local storage to save your progress. This means your completed days and checklist items will be remembered even if you close the browser.
+
+I use this to keep track of writing, exercise and leisure goals. So those three are the default. You can change them with the settings button. 
 
 # How to Run It
 
