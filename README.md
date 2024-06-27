@@ -4,11 +4,14 @@ Simple X-Effect calendar app that sits in the browser. Tick off checklist items 
 
 Shows all months of the current year, with the current month highlighted. You can have a daily checklist of up to five customizable items that you can check off each day. When you check off everything, that day is completed and marked with a red X on the calendar. The idea is that over time, this row of red Xs becomes motivation to keep on going so that you don't break the streak. The calendar uses your browser's local storage to save your progress. This means your completed days and checklist items will be remembered even if you close the browser.
 
-I use this to keep track of writing, exercise and leisure goals. So those three are the default. You can change them with the settings button. 
+![Screenshot_xeffect](https://github.com/yudhanjaya/xeffect/assets/16394240/083e6657-388e-4f6a-a81d-63652e03e57d)
+
+
+I built this to keep track of writing, exercise and leisure goals after my surgery. So those three are the default. You can change them with the settings button. 
 
 # How to Run It
 
-The entire application is contained in a single HTML file. This file includes the HTML structure, CSS styling, and JavaScript code all in one place.
+The entire application is contained in a single HTML file. It's simple enough that the screenshot above is actually more than 10 times larger than the whole code. 
 
 
 Download the HTML file (x-effect-calendar.html).
